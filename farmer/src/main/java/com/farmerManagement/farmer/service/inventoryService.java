@@ -9,6 +9,7 @@ public interface inventoryService {
     List<inventoryEntity> findAll();
     Optional<inventoryEntity> findById(int id);
     inventoryEntity saveProduct(inventoryEntity inventoryEntity);
-    inventoryEntity updateProduct(int id, inventoryEntity inventoryEntity);
+    inventoryEntity updateProduct(inventoryEntity inventoryEntity);
+    List<inventoryEntity> findByName(String name);
     boolean deleteProduct(int id);
 }

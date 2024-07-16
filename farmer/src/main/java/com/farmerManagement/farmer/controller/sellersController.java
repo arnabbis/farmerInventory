@@ -45,7 +45,7 @@ public class sellersController {
         String getMobileNumber = entity.getSellerMobileNumber();
         List<sellersEntity> findDuplicateName = service.findByMobile(getMobileNumber);
         if(!findDuplicateName.isEmpty()){
-            response<sellersEntity> response = new response<>(HttpStatus.NOT_FOUND.value(),"No Such Seller",null);
+            response<sellersEntity> response = new response<>(HttpStatus.CONFLICT.value(),"Dublicate Phone Number",findDuplicateName.get(0));
             return new ResponseEntity<>(response,HttpStatus.NOT_FOUND);
         }
 

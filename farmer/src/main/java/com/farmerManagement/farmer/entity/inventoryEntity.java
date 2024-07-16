@@ -1,6 +1,7 @@
 package com.farmerManagement.farmer.entity;
 
 import jakarta.persistence.*;
+import jakarta.persistence.criteria.CriteriaBuilder;
 
 import java.util.Date;
 @Entity
@@ -9,15 +10,13 @@ public class inventoryEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
-    @Column(name = "name")
-    private String productName;
-    @Column(name = "description")
-    private String productDescription;
-    @Column(name = "price")
-    private String productPrice;
-    @Column(name = "quantity")
-    private Float quantity;
+    private int inventoryId;
+    @Column(name = "inventoryName")
+    private String inventoryName;
+    @Column(name = "inventoryLocation")
+    private String inventoryLocation;
+    @Column(name = "vegetableId")
+    private Integer vegetableId;
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "date")
     private Date date;
@@ -25,53 +24,46 @@ public class inventoryEntity {
     public inventoryEntity() {
     }
 
-    public inventoryEntity(int id, String productName, String productDescription, String productPrice, Float quantity, Date date) {
-        this.id = id;
-        this.productName = productName;
-        this.productDescription = productDescription;
-        this.productPrice = productPrice;
-        this.quantity = quantity;
+    public inventoryEntity(int inventoryId, String inventoryName, String inventoryLocation, Integer vegetableId, Date date) {
+        this.inventoryId = inventoryId;
+        this.inventoryName = inventoryName;
+        this.inventoryLocation = inventoryLocation;
+        this.vegetableId = vegetableId;
         this.date = date;
     }
 
-    public int getId() {
-        return id;
+    public int getInventoryId() {
+        return inventoryId;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setInventoryId(int inventoryId) {
+        this.inventoryId = inventoryId;
     }
 
-    public String getProductName() {
-        return productName;
+    public String getInventoryName() {
+        return inventoryName;
     }
 
-    public void setProductName(String productName) {
-        this.productName = productName;
+    public void setInventoryName(String inventoryName) {
+        this.inventoryName = inventoryName;
     }
 
-    public String getProductDescription() {
-        return productDescription;
+    public String getInventoryLocation() {
+        return inventoryLocation;
     }
 
-    public void setProductDescription(String productDescription) {
-        this.productDescription = productDescription;
+    public void setInventoryLocation(String inventoryLocation) {
+        this.inventoryLocation = inventoryLocation;
     }
 
-    public Float getQuantity() {
-        return quantity;
+    public Integer getVegetableId() {
+        return vegetableId;
     }
 
-    public void setQuantity(Float quantity) {
-        this.quantity = quantity;
-    }
 
-    public String getProductPrice() {
-        return productPrice;
-    }
 
-    public void setProductPrice(String productPrice) {
-        this.productPrice = productPrice;
+    public void setVegetableId(Integer vegetableId) {
+        this.vegetableId = vegetableId;
     }
 
     public Date getDate() {
