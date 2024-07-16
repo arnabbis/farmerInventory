@@ -110,17 +110,21 @@ public class vegetableController {
     }
 
     @DeleteMapping("/deleteById/{id}")
-    public ResponseEntity<response<Void>> deleteById(@PathVariable int id){
+    public ResponseEntity<response<Void>> deleteById(@PathVariable int id) {
         Optional<vegetableEntity> findById = vegetableService.getVegetableById(id);
         response<Void> response;
-        if(!findById.isPresent()) {
-            response = new response<>(HttpStatus.NOT_FOUND.value(), "Vegetable doesnot exists", null);
-        }else {
-            vegetableService.deleteVegetable(id);
+        if (!findById.isPresent()) {
+            response<Void> data = new response<>(HttpStatus.NOT_FOUND.value(), "Vegetable doesnot exists", null);
+            return new ResponseEntity<>(data, HttpStatus.NOT_FOUND);
+        }
+        boolean deleteById = vegetableService.deleteVegetable(id);
+        if (deleteById) {
             response = new response<>(HttpStatus.OK.value(), "Vegetable deleted successfully", null);
+            return new ResponseEntity<>(response, HttpStatus.OK);
         }
 
-        return new ResponseEntity<>(response,HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
     }
 
 

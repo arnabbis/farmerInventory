@@ -1,21 +1,25 @@
 package com.farmerManagement.farmer.controller;
 
 import com.farmerManagement.farmer.entity.inventoryEntity;
+import com.farmerManagement.farmer.entity.vegetableEntity;
 import com.farmerManagement.farmer.respose.response;
 import com.farmerManagement.farmer.service.inventoryService;
+import com.farmerManagement.farmer.service.vegetableService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
-import java.util.Optional;
+
+import java.util.*;
 
 @RestController
 @RequestMapping("/inventory")
 public class inventoryController {
     public final inventoryService service;
+    public  final vegetableService vegetableservice;
 
-    public inventoryController(inventoryService service) {
+    public inventoryController(inventoryService service, vegetableService vegetableservice) {
         this.service = service;
+        this.vegetableservice = vegetableservice;
     }
 
     @GetMapping("/getAllInventoryProducts")
@@ -45,6 +49,15 @@ public class inventoryController {
     @PostMapping("/createProduct")
     public ResponseEntity<response<inventoryEntity>> createInventoryProduct(@RequestBody inventoryEntity inventory) {
         try {
+            int getId = inventory.getVegetableId();
+            Optional<vegetableEntity> vegetable = vegetableservice.getVegetableById(getId);
+            if(vegetable.isEmpty()) {
+                response<inventoryEntity> error = new response<>(HttpStatus.NOT_FOUND.value(), "No vegetable found", null);
+                return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+            }
+            if(inventory.getDate()==null){
+                inventory.setDate(new Date());
+            }
             inventoryEntity createData = service.saveProduct(inventory);
             response<inventoryEntity> result = new response<>(HttpStatus.CREATED.value(), "Product created successfully", createData);
             return new ResponseEntity<>(result, HttpStatus.CREATED);
@@ -58,23 +71,24 @@ public class inventoryController {
     public ResponseEntity<response<inventoryEntity>> updateInventoryProduct(@PathVariable("id") int id, @RequestBody inventoryEntity inventory) {
         Optional<inventoryEntity> findId = service.findById(id);
         System.out.println(findId);
-        if (!findId.isPresent()) {
+        if (findId.isEmpty()) {
             response<inventoryEntity> response = new response<>(HttpStatus.NOT_FOUND.value(), "Product not found with ID: " + id, null);
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
         inventoryEntity updateProduct = findId.get();
-        System.out.println(updateProduct);
-        if (inventory.getProductName() != null) {
-            updateProduct.setProductName(inventory.getProductName());
+        if (inventory.getInventoryName() != null) {
+            updateProduct.setInventoryName(inventory.getInventoryName());
         }
-        if (inventory.getProductDescription() != null) {
-            updateProduct.setProductDescription(inventory.getProductDescription());
+        if (inventory.getInventoryLocation() != null) {
+            updateProduct.setInventoryLocation(inventory.getInventoryLocation());
         }
-        if (inventory.getProductPrice() != null) {
-            updateProduct.setProductName(inventory.getProductName());
+        if (inventory.getVegetableId() != null) {
+            if(vegetableservice.getVegetableById(inventory.getInventoryId()).isPresent()) {
+                updateProduct.setInventoryId(inventory.getVegetableId());
+            }
         }
-        updateProduct = service.updateProduct(id, inventory);
-        response<inventoryEntity> response = new response<>(HttpStatus.OK.value(), "Product updated successfully", updateProduct);
+        inventoryEntity updateProducts = service.updateProduct(inventory);
+        response<inventoryEntity> response = new response<>(HttpStatus.OK.value(), "Product updated successfully", updateProducts);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -88,5 +102,49 @@ public class inventoryController {
             response<Void> response = new response<>(HttpStatus.NOT_FOUND.value(), "Product not found with ID: " + id, null);
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
+    }
+
+    @GetMapping("/getAllVegetablesByName")
+    public  ResponseEntity<response<List<Map<String, Object>>>> getAllVegetablesByName(@RequestParam String name) {
+        List<inventoryEntity> getAllData = service.findByName(name);
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (inventoryEntity inventory : getAllData) {
+            Optional<vegetableEntity> vegetableOpt = vegetableservice.getVegetableById(inventory.getVegetableId());
+            Map<String, Object> inventoryMap = new HashMap<>();
+            inventoryMap.put("inventoryId", inventory.getInventoryId());
+            inventoryMap.put("inventoryName", inventory.getInventoryName());
+            inventoryMap.put("inventoryLocation", inventory.getInventoryLocation());
+            inventoryMap.put("date", inventory.getDate());
+            if (vegetableOpt.isPresent()) {
+                vegetableEntity vegetable = vegetableOpt.get();
+                // Add vegetable data to the result map
+                Map<String, Object> vegetableMap = new HashMap<>();
+                vegetableMap.put("vegetableId", vegetable.getId());
+                vegetableMap.put("vegetableName", vegetable.getVegetableName());
+                vegetableMap.put("vegetablePrice", vegetable.getVegetablePrice());
+                vegetableMap.put("vegetableQuantity", vegetable.getVegetableQuantity());
+                vegetableMap.put("vegetablePerUnitPrice",vegetable.getPerUnitPrice());
+                inventoryMap.put("vegetable", vegetableMap);
+            } else {
+                inventoryMap.put("vegetable", null);
+            }
+
+            result.add(inventoryMap);
+        }
+        response<List<Map<String, Object>>> data = new response<>(HttpStatus.OK.value(), "All inventory products found", result);
+        return new ResponseEntity<>(data, HttpStatus.OK);
+
+    }
+
+    private static Map<String, Object> getStringObjectMap(Optional<vegetableEntity> vegetableOpt) {
+        vegetableEntity vegetable = vegetableOpt.get();
+        // Add vegetable data to the result map
+        Map<String, Object> vegetableMap = new HashMap<>();
+        vegetableMap.put("vegetableId", vegetable.getId());
+        vegetableMap.put("vegetableName", vegetable.getVegetableName());
+        vegetableMap.put("vegetablePrice", vegetable.getVegetablePrice());
+        vegetableMap.put("vegetableQuantity", vegetable.getVegetableQuantity());
+        vegetableMap.put("vegetablePerUnitPrice", vegetable.getPerUnitPrice());
+        return vegetableMap;
     }
 }

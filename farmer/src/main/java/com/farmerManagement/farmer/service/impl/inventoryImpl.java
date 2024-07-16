@@ -34,8 +34,13 @@ public class inventoryImpl implements inventoryService {
     }
 
     @Override
-    public inventoryEntity updateProduct(int id, inventoryEntity inventoryEntity) {
+    public inventoryEntity updateProduct(inventoryEntity inventoryEntity) {
         return inventoryRepo.save(inventoryEntity);
+    }
+
+    @Override
+    public List<inventoryEntity> findByName(String name) {
+        return inventoryRepo.findInventoryDetailsByName(name);
     }
 
     @Override
