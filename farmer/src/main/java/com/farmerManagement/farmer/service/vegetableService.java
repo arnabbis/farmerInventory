@@ -12,4 +12,5 @@ public interface vegetableService {
     vegetableEntity addVegetable(vegetableEntity vegetable);
     vegetableEntity updateVegetable(vegetableEntity vegetable);
     boolean deleteVegetable(int id);
+    void  updateVegetableQuantity(int id, int quantity);
 }

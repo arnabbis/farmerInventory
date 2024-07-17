@@ -11,4 +11,5 @@ public interface orderDetailsService {
         orderDetailsEntity save(orderDetailsEntity orderDetailsEntity);
         orderDetailsEntity update(orderDetailsEntity orderDetailsEntity);
         boolean delete(int id);
+
 }

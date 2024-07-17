@@ -12,5 +12,4 @@ import java.util.List;
 public interface sellerRepository extends JpaRepository<sellersEntity, Integer> {
     @Query("SELECT v FROM sellersEntity  v WHERE v.sellerMobileNumber = :mobile")
     List<sellersEntity> findByMobile(@Param("mobile") String mobile);
-
 }

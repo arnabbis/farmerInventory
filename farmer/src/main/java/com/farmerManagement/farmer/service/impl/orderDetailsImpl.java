@@ -3,9 +3,12 @@ package com.farmerManagement.farmer.service.impl;
 import com.farmerManagement.farmer.entity.orderDetailsEntity;
 import com.farmerManagement.farmer.repository.orderDetailsRepository;
 import com.farmerManagement.farmer.service.orderDetailsService;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+
+@Service
 
 public class orderDetailsImpl implements orderDetailsService {
 

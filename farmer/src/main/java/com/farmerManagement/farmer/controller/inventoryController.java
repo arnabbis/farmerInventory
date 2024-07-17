@@ -55,6 +55,7 @@ public class inventoryController {
                 response<inventoryEntity> error = new response<>(HttpStatus.NOT_FOUND.value(), "No vegetable found", null);
                 return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
             }
+            System.out.println();
             if(inventory.getDate()==null){
                 inventory.setDate(new Date());
             }
