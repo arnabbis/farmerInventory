@@ -36,6 +36,19 @@ public class purchaseOrder {
         this.orderDate = orderDate;
     }
 
+    @Override
+    public String toString() {
+        return "purchaseOrder{" +
+                "id=" + id +
+                ", sellerId=" + sellerId +
+                ", contactInfo='" + contactInfo + '\'' +
+                ", shippingAddress='" + shippingAddress + '\'' +
+                ", totalPrice=" + totalPrice +
+                ", orderDate=" + orderDate +
+                '}';
+    }
+
+
     public int getId() {
         return id;
     }

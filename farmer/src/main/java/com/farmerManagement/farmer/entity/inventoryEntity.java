@@ -32,6 +32,18 @@ public class inventoryEntity {
         this.date = date;
     }
 
+
+    @Override
+    public String toString() {
+        return "inventoryEntity{" +
+                "inventoryId=" + inventoryId +
+                ", inventoryName='" + inventoryName + '\'' +
+                ", inventoryLocation='" + inventoryLocation + '\'' +
+                ", vegetableId=" + vegetableId +
+                ", date=" + date +
+                '}';
+    }
+
     public int getInventoryId() {
         return inventoryId;
     }

@@ -13,4 +13,5 @@ public interface purchaseOrderService {
     purchaseOrder save(purchaseOrder purchaseOrder);
     purchaseOrder update(purchaseOrder purchaseOrder);
     boolean deleteById(int id);
+    void updatePrice(int id, double price);
 }

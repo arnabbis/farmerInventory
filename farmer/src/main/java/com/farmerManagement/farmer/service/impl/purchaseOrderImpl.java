@@ -48,4 +48,9 @@ public class purchaseOrderImpl  implements purchaseOrderService {
             return false;
         }
     }
+
+    @Override
+    public void updatePrice(int id, double price) {
+        purchaseOrderRepo.updateTotalPrice(id, price);
+    }
 }

@@ -51,4 +51,9 @@ public class vegetableImpl implements vegetableService {
             return false;
         }
     }
+
+    @Override
+    public void updateVegetableQuantity(int id, int quantity) {
+        vegetableService.updateQuantity(id,quantity);
+    }
 }
