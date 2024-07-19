@@ -82,5 +82,106 @@ public class orderDetailsController {
         response<orderDetailsEntity> response = new response<>(HttpStatus.OK.value(), "order details", createOrder);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+    @PutMapping("/addQuantity/{id}")
+    @Transactional
+    public ResponseEntity<response<orderDetailsEntity>> addQuantity(@PathVariable("id") int id, @RequestBody orderDetailsEntity orderDetailsEntity) {
+        Optional<orderDetailsEntity> findOrderOpt = service.findById(id);
+        if (findOrderOpt.isEmpty()) {
+            response<orderDetailsEntity> response = new response<>(HttpStatus.NOT_FOUND.value(), "No order found", null);
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
 
+        orderDetailsEntity existingOrder = findOrderOpt.get();
+
+        Optional<purchaseOrder> findPurchaseOrder = purchaseService.findById(existingOrder.getPurchaseOrderId());
+        Optional<vegetableEntity> findVegetable = vegetyService.getVegetableById(existingOrder.getVegetableId());
+
+        if (findPurchaseOrder.isEmpty() || findVegetable.isEmpty()) {
+            response<orderDetailsEntity> response = new response<>(HttpStatus.NOT_FOUND.value(), "Purchase order or vegetable not found", null);
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+
+        int updatedQuantity = existingOrder.getQuantity() + orderDetailsEntity.getQuantity();
+        if(findVegetable.get().getVegetableQuantity()<updatedQuantity){
+            response<orderDetailsEntity> response = new response<>(HttpStatus.NOT_FOUND.value(), "Vegetable quantity exceeded", null);
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+        double addPrice = findVegetable.get().getVegetablePrice() * orderDetailsEntity.getQuantity();
+        double newTotalPrice = existingOrder.getTotalPrice() + addPrice;
+
+        existingOrder.setQuantity(updatedQuantity);
+        existingOrder.setTotalPrice(newTotalPrice);
+
+        orderDetailsEntity updatedOrder = service.save(existingOrder);
+
+        double updatedPurchaseOrderPrice = findPurchaseOrder.get().getTotalPrice() + addPrice;
+        purchaseService.updatePrice(findPurchaseOrder.get().getId(), updatedPurchaseOrderPrice);
+
+        int revisedVegetableQuantity = findVegetable.get().getVegetableQuantity() - orderDetailsEntity.getQuantity();
+        vegetyService.updateVegetableQuantity(findVegetable.get().getId(), revisedVegetableQuantity);
+
+        response<orderDetailsEntity> response = new response<>(HttpStatus.OK.value(), "Order details updated", updatedOrder);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
+    @PutMapping("/minusQuantity/{id}")
+    @Transactional
+    public ResponseEntity<response<orderDetailsEntity>> minusQuantity(@PathVariable("id") int id, @RequestBody orderDetailsEntity orderDetailsEntity) {
+        Optional<orderDetailsEntity> findOrderOpts = service.findById(id);
+        if (findOrderOpts.isEmpty()) {
+            response<orderDetailsEntity> response = new response<>(HttpStatus.NOT_FOUND.value(), "No order found", null);
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+
+        orderDetailsEntity existingOrder = findOrderOpts.get();
+
+        Optional<purchaseOrder> findPurchaseOrder = purchaseService.findById(existingOrder.getPurchaseOrderId());
+        Optional<vegetableEntity> findVegetable = vegetyService.getVegetableById(existingOrder.getVegetableId());
+
+        if (findPurchaseOrder.isEmpty() || findVegetable.isEmpty()) {
+            response<orderDetailsEntity> response = new response<>(HttpStatus.NOT_FOUND.value(), "Purchase order or vegetable not found", null);
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+
+        int updatedQuantity = existingOrder.getQuantity() - orderDetailsEntity.getQuantity();
+        if(findVegetable.get().getVegetableQuantity()>updatedQuantity){
+            response<orderDetailsEntity> response = new response<>(HttpStatus.NOT_FOUND.value(), "Vegetable quantity is less than the minimum quantity amount", null);
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+        double addPrice = findVegetable.get().getVegetablePrice() * orderDetailsEntity.getQuantity();
+        double newTotalPrice = existingOrder.getTotalPrice() - addPrice;
+        existingOrder.setQuantity(updatedQuantity);
+        existingOrder.setTotalPrice(newTotalPrice);
+
+        orderDetailsEntity updatedOrder = service.save(existingOrder);
+
+        double updatedPurchaseOrderPrice = findPurchaseOrder.get().getTotalPrice() - addPrice;
+        purchaseService.updatePrice(findPurchaseOrder.get().getId(), updatedPurchaseOrderPrice);
+
+        int revisedVegetableQuantity = findVegetable.get().getVegetableQuantity() + orderDetailsEntity.getQuantity();
+        vegetyService.updateVegetableQuantity(findVegetable.get().getId(), revisedVegetableQuantity);
+
+        response<orderDetailsEntity> response = new response<>(HttpStatus.OK.value(), "Order details updated", updatedOrder);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/deleteOrder/{id}")
+    public ResponseEntity<response<Void>> deleteOrder(@PathVariable("id") int id) {
+        Optional<orderDetailsEntity> findOrderOpts = service.findById(id);
+        if (findOrderOpts.isEmpty()) {
+            response<Void> response = new response<>(HttpStatus.NOT_FOUND.value(), "No order found", null);
+            return new ResponseEntity<>(response,HttpStatus.NOT_FOUND);
+        }
+
+        orderDetailsEntity existingOrder = findOrderOpts.get();
+        Optional<purchaseOrder> findPurchaseOrder = purchaseService.findById(existingOrder.getPurchaseOrderId());
+        double finalSetPrice = findPurchaseOrder.get().getTotalPrice() - findOrderOpts.get().getTotalPrice();
+        purchaseService.updatePrice(findPurchaseOrder.get().getId(), finalSetPrice);
+        Optional<vegetableEntity> findVegetable = vegetyService.getVegetableById(existingOrder.getVegetableId());
+        int addQuantity = findVegetable.get().getVegetableQuantity() + existingOrder.getQuantity();
+        vegetyService.updateVegetableQuantity(findVegetable.get().getId(), addQuantity);
+        response<Void> response = new response<>(HttpStatus.OK.value(), "Order details updated", null);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }
