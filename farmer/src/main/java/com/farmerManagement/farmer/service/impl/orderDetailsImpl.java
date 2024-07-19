@@ -48,4 +48,9 @@ public class orderDetailsImpl implements orderDetailsService {
             return false;
         }
     }
+
+    @Override
+    public List<orderDetailsEntity> findByPurchaseOrderId(int purchaseOrderId) {
+        return orderDetailsRepo.findByPurchaseOrderId(purchaseOrderId);
+    }
 }
